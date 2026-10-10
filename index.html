@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!--
+	NOTES:
+	1. All tokens are represented by '$' sign in the template.
+	2. You can write your code only wherever mentioned.
+	3. All occurrences of existing tokens will be replaced by their appropriate values.
+	4. Blank lines will be removed automatically.
+	5. Remove unnecessary comments before creating your template.
+-->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>index</title>
+<!-- write your code here -->
+<style>
+  #animation_container {
+	position:absolute;
+	margin:auto;
+	left:0;right:0;
+	top:0;bottom:0;
+  }
+</style>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script src="index.js"></script>
+<script>
+// Global Scripts
+	createjs.Sound.registerSound("aklik.mpeg", "suaraKlik");
+// ========================================
+// FUNGSI SUARA
+// ========================================
+function bunyiKlik() {
+    createjs.Sound.play("suaraKlik");
+}
+var video108 = null;
+function posisiVideo108() {
+    if (!video108 || !canvas) {
+        return;
+    }
+    var rect = canvas.getBoundingClientRect();
+    var desainLebar = 1280;
+    var desainTinggi = 720;
+    var scaleX = rect.width / desainLebar;
+    var scaleY = rect.height / desainTinggi;
+    var videoX = 0;
+    var videoY = 30;
+    var videoLebar = 1280;
+    var videoTinggi = 400;
+    video108.style.position = "fixed";
+    video108.style.left =
+        (rect.left + (videoX * scaleX)) + "px";
+    video108.style.top =
+        (rect.top + (videoY * scaleY)) + "px";
+    video108.style.width =
+        (videoLebar * scaleX) + "px";
+    video108.style.height =
+        (videoTinggi * scaleY) + "px";
+}
+function mulaiVideo108() {
+    hentikanVideo108();
+    video108 = document.createElement("video");
+    video108.src = "video108.mp4";
+    video108.loop = true;
+    video108.autoplay = true;
+    video108.muted = false;
+    video108.playsInline = true;
+    video108.style.position = "fixed";
+    video108.style.pointerEvents = "none";
+    video108.style.zIndex = "0";
+    video108.controls = false;
+    document.body.appendChild(video108);
+    posisiVideo108();
+    video108.currentTime = 0;
+    video108.play().catch(function(error) {
+        console.log("Video menunggu interaksi pengguna.");
+    });
+}
+window.addEventListener("resize", function() {
+    posisiVideo108();
+});
+function hentikanVideo108() {
+    if (video108) {
+        video108.pause();
+        video108.currentTime = 0;
+        video108.remove();
+        video108 = null;
+    }
+}
+// ================================
+// DATA KUIS
+// ================================
+var jawabanKuis = [
+    null, null, null, null, null,
+    null, null, null, null, null
+];
+var namaPeserta = "";
+var kuisSelesai = false;
+// ========================================
+// SIMPAN JAWABAN
+// ========================================
+function simpanJawaban(nomor, jawaban) {
+    jawabanKuis[nomor - 1] = jawaban;
+}
+// ========================================
+// AMBIL JAWABAN
+// ========================================
+function ambilJawaban(nomor) {
+    return jawabanKuis[nomor - 1];
+}
+// ========================================
+// RESET KUIS
+// ========================================
+function resetKuis() {
+    for (var i = 0; i < jawabanKuis.length; i++) {
+        jawabanKuis[i] = null;
+    }
+    kuisSelesai = false;
+}
+// ========================================
+// HAPUS SEMUA TANDA DALAM SATU SOAL
+// ========================================
+function hapusSemuaTanda(tombolArray) {
+    for (var i = 0; i < tombolArray.length; i++) {
+        var tombol = tombolArray[i];
+        if (tombol && tombol.tandaPilihan) {
+            tombol.removeChild(tombol.tandaPilihan);
+            tombol.tandaPilihan = null;
+        }
+    }
+}
+// ========================================
+// BERI TANDA PADA SATU TOMBOL
+// ========================================
+function beriTandaPilihan(tombol) {
+    if (!tombol) {
+        return;
+    }
+    // Jangan buat tanda ganda
+    if (tombol.tandaPilihan) {
+        return;
+    }
+    var b = tombol.getBounds();
+    if (!b) {
+        return;
+    }
+    var tanda = new createjs.Shape();
+    tanda.graphics
+        .setStrokeStyle(3)
+        .beginStroke("#FF0000")
+        .drawRect(
+            b.x,
+            b.y,
+            b.width,
+            b.height
+        );
+    // Tanda tidak menangkap klik
+    tanda.mouseEnabled = false;
+    tanda.mouseChildren = false;
+    // Simpan tanda pada tombol
+    tombol.tandaPilihan = tanda;
+    tombol.addChild(tanda);
+}
+// ========================================
+// EVENT CLICK TANPA DUPLIKASI
+// ========================================
+function pasangKlik(obj, fungsi) {
+    if (!obj) {
+        return;
+    }
+    if (obj._quizClickHandler) {
+        obj.removeEventListener(
+            "click",
+            obj._quizClickHandler
+        );
+    }
+    obj._quizClickHandler = fungsi;
+    obj.addEventListener(
+        "click",
+        fungsi
+    );
+}
+// ========================================
+// SUARA KLIK GLOBAL
+// ========================================
+// ========================================
+// BACKGROUND MUSIC
+// ========================================
+var musikLatar = new Audio("musik.mpeg");
+musikLatar.loop = true;
+musikLatar.volume = 0.3;
+var musikAktif = true;
+var frameMusikSebelumnya = -1;
+// ========================================
+// MULAI MUSIK
+// ========================================
+function mulaiMusik() {
+    if (!musikAktif) {
+        return;
+    }
+    var frameSekarang = exportRoot.currentFrame + 1;
+    // Jangan hidupkan musik di Frame 108
+    if (frameSekarang === 108) {
+        return;
+    }
+    musikLatar.play().catch(function(error) {
+        console.log("Musik menunggu interaksi pengguna.");
+    });
+}
+// ========================================
+// HENTIKAN MUSIK
+// ========================================
+function hentikanMusik() {
+    musikLatar.pause();
+    musikLatar.currentTime = 0;
+}
+// ========================================
+// OTOMATIS STOP FRAME 108
+// DAN PLAY LAGI SETELAH KELUAR
+// ========================================
+createjs.Ticker.on("tick", function() {
+    var frameSekarang = exportRoot.currentFrame + 1;
+    if (frameSekarang === frameMusikSebelumnya) {
+        return;
+    }
+    frameMusikSebelumnya = frameSekarang;
+    // ==============================
+    // MASUK FRAME 108
+    // ==============================
+    if (frameSekarang === 108) {
+        hentikanMusik();
+    }
+    // ==============================
+    // FRAME LAIN
+    // ==============================
+    else {
+        if (musikAktif) {
+            mulaiMusik();
+        }
+    }
+});
+// ========================================
+// FUNGSI ON / OFF
+// ========================================
+function ubahStatusMusik() {
+    if (musikAktif) {
+        // MATIKAN
+        musikAktif = false;
+        hentikanMusik();
+        if (exportRoot.btnmusik) {
+            exportRoot.btnmusik.gotoAndStop(1);
+        }
+    } else {
+        // NYALAKAN
+        musikAktif = true;
+        if (exportRoot.btnmusik) {
+            exportRoot.btnmusik.gotoAndStop(0);
+        }
+        mulaiMusik();
+    }
+}</script>
+<script>
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	var comp=AdobeAn.getComposition("74C344797434274C93BCB8FD881E2F7E");
+	var lib=comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.installPlugin(createjs.Sound);
+	loader.addEventListener("fileload", function(evt){handleFileLoad(evt,comp)});
+	loader.addEventListener("complete", function(evt){handleComplete(evt,comp)});
+	var lib=comp.getLibrary();
+	loader.loadManifest(lib.properties.manifest);
+}
+function handleFileLoad(evt, comp) {
+	var images=comp.getImages();	
+	if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }	
+}
+function handleComplete(evt,comp) {
+	//This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
+	var lib=comp.getLibrary();
+	var ss=comp.getSpriteSheet();
+	var queue = evt.target;
+	var ssMetadata = lib.ssMetadata;
+	for(i=0; i<ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
+	}
+	exportRoot = new lib.modulbaru();
+	stage = new lib.Stage(canvas);
+	stage.enableMouseOver();	
+	//Registers the "tick" event listener.
+	fnStartAnimation = function() {
+		stage.addChild(exportRoot);
+		createjs.Ticker.framerate = lib.properties.fps;
+		createjs.Ticker.addEventListener("tick", stage);
+	}	    
+	//Code to support hidpi screens and responsive scaling.
+	AdobeAn.makeResponsive(true,'both',true,1,[canvas,anim_container,dom_overlay_container]);	
+	AdobeAn.compositionLoaded(lib.properties.id);
+	fnStartAnimation();
+}
+function playSound(id, loop, offset) {
+	return createjs.Sound.play(id, {'interrupt':createjs.Sound.INTERRUPT_EARLY, 'loop': loop, 'offset': offset});}
+</script>
+<!-- write your code here -->
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:720px; height:1280px">
+		<canvas id="canvas" width="720" height="1280" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 1.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:720px; height:1280px; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+	</div>
+</body>
+</html>
